@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gen2brain/beeep"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,7 @@ var startCmd = &cobra.Command{
 
 			go func() {
 				countDownStart(workDuration, workComplete)
-				fmt.Println("\nWork completed. Take a break.")
+				fmt.Println("\nWork completed, good job! Take a break.")
 				close(workComplete)
 			}()
 
@@ -80,6 +81,11 @@ func countDownStart(duration time.Duration, completionChan chan bool) {
 			waitForEnter()
 			resumeTimer()
 		}
+	}
+
+	err := beeep.Notify("Pomodoro Timer", "Timer completed.", "")
+	if err != nil {
+		panic(err)
 	}
 
 
