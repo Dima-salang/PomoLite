@@ -44,16 +44,29 @@ func (s *SQLiteStorage)SaveTimerData(label string, startTime time.Time, endTime 
 }
 
 func (s *SQLiteStorage)ListSessions(count int) ([]Session, error) {
-	rows, err := s.db.Query(`
+	// if count is 0, return all sessions
+
+	query := `
 		SELECT id, label, start_time, end_time
 		FROM pomodoro
 		ORDER BY start_time DESC
-		LIMIT ?
-	`, count)
-	if err != nil {
-		return nil, err
+	`
+	var rows *sql.Rows
+	var err error
+	if count > 0 {
+		query += " LIMIT ?"
+		rows, err = s.db.Query(query, count)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+	} else {
+		rows, err = s.db.Query(query)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
 	}
-	defer rows.Close()
 
 	var sessions []Session
 	for rows.Next() {
