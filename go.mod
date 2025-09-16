@@ -5,6 +5,7 @@ go 1.21.1
 require (
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
 	github.com/gen2brain/beeep v0.0.0-20230907135156-1a38885a97fc
+	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.7.0
 )
