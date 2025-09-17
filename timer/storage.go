@@ -20,3 +20,14 @@ type Session struct {
 	StartTime time.Time
 	EndTime   time.Time
 }
+
+type PomoStats struct {
+	TotalWorkDuration time.Duration
+	TotalSessions int
+	AverageSessionDuration time.Duration
+	LongestSession time.Duration
+	ShortestSession time.Duration
+	HighestSessionLabel map[string]time.Duration
+	TimeSpentPerLabel map[string]time.Duration
+	PomosPerLabel map[string]int
+}

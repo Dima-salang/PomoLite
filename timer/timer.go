@@ -8,6 +8,7 @@ import (
 	"github.com/eiannone/keyboard"
 	"github.com/gen2brain/beeep"
 	"github.com/schollz/progressbar/v3"
+	"github.com/fatih/color"
 )
 
 type PomodoroTimer struct {
@@ -50,8 +51,25 @@ func (pt *PomodoroTimer) Start() bool {
 	return true
 }
 
+
 func (pt *PomodoroTimer) CountDownStart(label string, duration time.Duration) bool {
-	bar := progressbar.Default(int64(duration.Seconds()))
+	bar := progressbar.NewOptions64(
+		int64(duration.Seconds()),
+		progressbar.OptionSetWidth(30),
+		progressbar.OptionShowCount(),
+		progressbar.OptionClearOnFinish(),
+		progressbar.OptionSetDescription(color.CyanString(
+			"▶ %s [%02d:%02d]", label,
+			int(duration.Minutes()), int(duration.Seconds())%60,
+		)),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "█",
+			SaucerPadding: "░",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+	)
+
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
@@ -61,28 +79,44 @@ func (pt *PomodoroTimer) CountDownStart(label string, duration time.Duration) bo
 			if !pt.PauseFlag.Load() {
 				remaining -= time.Second
 				bar.Add(1)
+
+				// Update label with time left (mm:ss), cyan text
+				bar.Describe(color.CyanString("▶ %s [%02d:%02d]", label,
+					int(remaining.Minutes()), int(remaining.Seconds())%60))
 			}
 		case cmd := <-pt.ControlChan:
 			switch cmd {
 			case "pause":
 				pt.PauseFlag.Store(true)
-				fmt.Println("\nTimer paused. Press r to resume.")
+				bar.Describe(color.YellowString("⏸ Paused - press 'r' to resume"))
 			case "resume":
 				pt.PauseFlag.Store(false)
+				bar.Describe(color.GreenString("▶ Resumed: %s", label))
 			case "quit":
+				fmt.Println(color.RedString("\n⏹ Timer stopped early."))
 				return false
 			}
-
 		}
 	}
 
-	err := beeep.Notify(pt.WorkLabel, "Timer completed.", "")
+	// Completion feedback
+	fmt.Println(color.GreenString("\n✅ %s completed!", label))
+
+	// Desktop notification
+	err := beeep.Notify(pt.WorkLabel, fmt.Sprintf("%s completed!", label), "")
+
+	// Terminal beep (may or may not work depending on system)
+	fmt.Print("\a")
+	beeep.Beep(500, 200)
+
 	if err != nil {
-		fmt.Println("Error: ", err)
+		fmt.Println(color.RedString("Error sending notification: %v", err))
 	}
 
 	return true
 }
+
+
 
 // listening for commands
 func ListenForCommands(controlChan chan<- string) {

@@ -7,20 +7,44 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/Dima-salang/PomoLite/timer"
+	"github.com/fatih/color"
 )
+
+/*
+TIMEFRAME possible values:
+- all
+- today
+- week
+- month
+- year
+*/
+
 
 // statCmd represents the stat command
 var statCmd = &cobra.Command{
 	Use:   "stat",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Displays the statistics for the timeframe specified",
+	Long: `Displays the statistics for the timeframe specified. Possible values for timeframe are:
+- all
+- today
+- week
+- month
+- year`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("stat called")
+		timeframe, _ := cmd.Flags().GetString("timeframe")
+		storage, err := timer.NewSQLiteStorage("./pomodoro.db")
+		if err != nil {
+			fmt.Println(color.RedString("Error: %v", err))
+			return
+		}
+		defer storage.Close()
+		pomoStats, err := storage.ComputePomoStats(timeframe)
+		if err != nil {
+			fmt.Println(color.RedString("Error: %v", err))
+			return
+		}
+		fmt.Println(pomoStats)
 	},
 }
 
@@ -36,4 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// statCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	statCmd.Flags().StringP("timeframe", "t", "all", "timeframe for stats")
 }
