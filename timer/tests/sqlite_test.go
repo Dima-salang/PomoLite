@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Dima-salang/PomoLite/timer"
+	"github.com/Dima-salang/pomolite/timer"
 )
 
 var testStorage *timer.SQLiteStorage

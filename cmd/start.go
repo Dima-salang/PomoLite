@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Dima-salang/PomoLite/timer"
+	"github.com/Dima-salang/pomolite/timer"
 	"github.com/eiannone/keyboard"
 	"github.com/spf13/cobra"
 )

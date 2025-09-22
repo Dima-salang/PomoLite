@@ -1,4 +1,4 @@
-module github.com/Dima-salang/PomoLite
+module github.com/Dima-salang/pomolite
 
 go 1.21.1
 
