@@ -30,6 +30,15 @@
 
 ## Installation
 
+### Using the Installation Script
+
+For a seamless installation, you can use the provided installation script. This will build the binary and attempt to install it.
+
+```sh
+chmod +x scripts/install.sh
+./scripts/install.sh
+```
+
 ### Using `go install`
 
 You can install PomoLite using `go install`. This will build the binary and place it in your `$GOPATH/bin` directory.
