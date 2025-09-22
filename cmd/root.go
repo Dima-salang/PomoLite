@@ -34,9 +34,11 @@ Example usage:
 	
 .\PomoLite.exe start -m 30 -b 5 :: Starts a 30-minute Pomodoro timer with a 5-minute break
 
-To pause the Pomodoro Timer, you can use the Pause Break button on your keyboard located near your function keys.
+To pause the Pomodoro Timer, you can press the 'p' button on your keyboard.
 
-To unpause or resume the Pomodoro Timer, press any key.
+To unpause or resume the Pomodoro Timer, press 'r'.
+
+To quit the Pomodoro Timer and save it for stats, press 'q'.
 
 
 
