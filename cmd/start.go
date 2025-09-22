@@ -11,7 +11,6 @@ import (
 
 var minutes int
 var breakMinutes int
-var workSeconds int
 var label string
 
 // startCmd represents the start command
@@ -23,11 +22,10 @@ var startCmd = &cobra.Command{
 	FLAGS:
 	-l : label for the work session
 	-m : minutes of work
-	-s : seconds of work
 	-b : minutes of break`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// check for the validity of the input
-		if !timer.CheckInput(minutes, breakMinutes, workSeconds) {
+		if !timer.CheckInput(minutes, breakMinutes) {
 			return
 		}
 		var storage timer.Storage
@@ -39,7 +37,7 @@ var startCmd = &cobra.Command{
 		}
 		defer storage.Close()
 
-		totalWorkDuration := time.Duration(minutes)*time.Minute + time.Duration(workSeconds)*time.Second
+		totalWorkDuration := time.Duration(minutes)*time.Minute
 		totalBreakDuration := time.Duration(breakMinutes) * time.Minute
 
 		pt := timer.NewPomodoroTimer(totalWorkDuration, totalBreakDuration, label)
@@ -61,7 +59,6 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 
 	startCmd.Flags().StringVarP(&label, "label", "l", "Work", "label for the work session")
-	startCmd.Flags().IntVarP(&minutes, "minutes", "m", 0, "minutes to work")
-	startCmd.Flags().IntVarP(&workSeconds, "seconds", "s", 0, "seconds to work")
+	startCmd.Flags().IntVarP(&minutes, "minutes", "m", 30, "minutes to work")
 	startCmd.Flags().IntVarP(&breakMinutes, "break", "b", 5, "minutes to take a break")
 }

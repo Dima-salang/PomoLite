@@ -76,9 +76,12 @@ func (s *SQLiteStorage)ListSessions(count int) ([]Session, error) {
 	var sessions []Session
 	for rows.Next() {
 		var session Session
-		if err := rows.Scan(&session.ID, &session.Label, &session.StartTime, &session.EndTime); err != nil {
+		var startUnix, endUnix int64
+		if err := rows.Scan(&session.ID, &session.Label, &startUnix, &endUnix); err != nil {
 			return nil, err
 		}
+		session.StartTime = time.Unix(startUnix, 0)
+		session.EndTime = time.Unix(endUnix, 0)
 		sessions = append(sessions, session)
 	}
 	return sessions, nil

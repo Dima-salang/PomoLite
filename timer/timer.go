@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/eiannone/keyboard"
+	"github.com/fatih/color"
 	"github.com/gen2brain/beeep"
 	"github.com/schollz/progressbar/v3"
-	"github.com/fatih/color"
 )
 
 type PomodoroTimer struct {
@@ -50,7 +50,6 @@ func (pt *PomodoroTimer) Start() bool {
 
 	return true
 }
-
 
 func (pt *PomodoroTimer) CountDownStart(label string, duration time.Duration) bool {
 	bar := progressbar.NewOptions64(
@@ -116,8 +115,6 @@ func (pt *PomodoroTimer) CountDownStart(label string, duration time.Duration) bo
 	return true
 }
 
-
-
 // listening for commands
 func ListenForCommands(controlChan chan<- string) {
 	if err := keyboard.Open(); err != nil {
@@ -143,14 +140,10 @@ func ListenForCommands(controlChan chan<- string) {
 	}
 }
 
-func CheckInput(minutes int, breakMinutes int, workSeconds int) bool {
-	if minutes < 0 || breakMinutes < 0 || workSeconds < 0 {
-		fmt.Println("Error: Invalid input. Minutes, break, and seconds must be non-negative.")
-		return false
-	}
-
-	if workSeconds >= 60 {
-		fmt.Println("Error: Invalid input. Seconds must be less than 60.")
+func CheckInput(minutes int, breakMinutes int) bool {
+	// if minutes, breakMinutes, or workSeconds is less than or equal to 0, return false
+	if minutes <= 0 || breakMinutes <= 0 {
+		fmt.Println("Error: Invalid input. Minutes, break, and seconds must be greater than 0.")
 		return false
 	}
 
