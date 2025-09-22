@@ -25,14 +25,14 @@ const asciiArt = `
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "PomoLite",
+	Use:   "pomo",
 	Short: "Lightweight CLI Pomodoro Timer",
 	Long: fmt.Sprintf(`%s PomoLite is a lightweight CLI Pomodoro application desgned for students to efficiently accomplish tasks and maximize their learning potential
 ########################################################################################
 
 Example usage:
 	
-.\PomoLite.exe start -m 30 -b 5 :: Starts a 30-minute Pomodoro timer with a 5-minute break
+pomo start -m 30 -b 5 :: Starts a 30-minute Pomodoro timer with a 5-minute break
 
 To pause the Pomodoro Timer, you can press the 'p' button on your keyboard.
 
