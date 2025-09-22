@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type TimeFrame struct {
 	start time.Time
-	end time.Time
+	end   time.Time
 }
-
 
 type SQLiteStorage struct {
 	db *sql.DB
@@ -29,17 +29,16 @@ func NewSQLiteStorage(path string) (*SQLiteStorage, error) {
 	return &SQLiteStorage{db: db}, nil
 }
 
-func (s *SQLiteStorage)Close() error {
+func (s *SQLiteStorage) Close() error {
 	return s.db.Close()
 }
 
 // save the timer data to the database
-func (s *SQLiteStorage)SaveTimerData(label string, startTime time.Time, endTime time.Time) error {
+func (s *SQLiteStorage) SaveTimerData(label string, startTime time.Time, endTime time.Time) error {
 	_, err := s.db.Exec(`
 		INSERT INTO sessions (label, start_time, end_time)
 		VALUES (?, ?, ?)
 	`, label, startTime.Unix(), endTime.Unix())
-
 
 	fmt.Printf("Timer saved successfully with label: %s, start time: %s, end time: %s\n", label, startTime, endTime)
 	if err != nil {
@@ -48,7 +47,7 @@ func (s *SQLiteStorage)SaveTimerData(label string, startTime time.Time, endTime 
 	return nil
 }
 
-func (s *SQLiteStorage)ListSessions(count int) ([]Session, error) {
+func (s *SQLiteStorage) ListSessions(count int) ([]Session, error) {
 	// if count is 0, return all sessions
 
 	query := `
@@ -88,7 +87,7 @@ func (s *SQLiteStorage)ListSessions(count int) ([]Session, error) {
 }
 
 // STATS
-func (s *SQLiteStorage)ComputePomoStats(timeframe string) (*PomoStats, error) {
+func (s *SQLiteStorage) ComputePomoStats(timeframe string) (*PomoStats, error) {
 	statsTimeFrame, err := resolveTimeFrame(timeframe)
 	if err != nil {
 		return nil, err
@@ -104,51 +103,48 @@ func (s *SQLiteStorage)ComputePomoStats(timeframe string) (*PomoStats, error) {
 	stats.TimeSpentPerLabel, _ = computeTimeSpentPerLabel(statsTimeFrame, s.db)
 	stats.PomosPerLabel, _ = computePomosPerLabel(statsTimeFrame, s.db)
 
+
 	return stats, nil
 }
-
 
 // resolve time frame
 
 func resolveTimeFrame(timeframe string) (TimeFrame, error) {
-    now := time.Now()
-    statsTimeFrame := TimeFrame{}
+	now := time.Now()
+	statsTimeFrame := TimeFrame{}
 
-    switch timeframe {
-    case "all":
-        // Zero times (no filtering)
-        statsTimeFrame.start = time.Time{}
-        statsTimeFrame.end = time.Time{}
+	switch timeframe {
+	case "all":
+		statsTimeFrame.start = time.Time{}
+		statsTimeFrame.end = now
 
-    case "today":
-        statsTimeFrame.start = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-        statsTimeFrame.end = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, int(time.Second-time.Nanosecond), now.Location())
+	case "today":
+		statsTimeFrame.start = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		statsTimeFrame.end = time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, int(time.Second-time.Nanosecond), now.Location())
 
-    case "week":
-        weekday := int(now.Weekday())
-        if weekday == 0 { // Sunday → make it 7
-            weekday = 7
-        }
-        startOfWeek := now.AddDate(0, 0, -(weekday-1)) // Monday
-        statsTimeFrame.start = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, now.Location())
-        statsTimeFrame.end = statsTimeFrame.start.AddDate(0, 0, 7).Add(-time.Nanosecond)
+	case "week":
+		weekday := int(now.Weekday())
+		if weekday == 0 { // Sunday → make it 7
+			weekday = 7
+		}
+		startOfWeek := now.AddDate(0, 0, -(weekday - 1)) // Monday
+		statsTimeFrame.start = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, now.Location())
+		statsTimeFrame.end = statsTimeFrame.start.AddDate(0, 0, 7).Add(-time.Nanosecond)
 
-    case "month":
-        statsTimeFrame.start = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-        statsTimeFrame.end = statsTimeFrame.start.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	case "month":
+		statsTimeFrame.start = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		statsTimeFrame.end = statsTimeFrame.start.AddDate(0, 1, 0).Add(-time.Nanosecond)
 
-    case "year":
-        statsTimeFrame.start = time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
-        statsTimeFrame.end = statsTimeFrame.start.AddDate(1, 0, 0).Add(-time.Nanosecond)
+	case "year":
+		statsTimeFrame.start = time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+		statsTimeFrame.end = statsTimeFrame.start.AddDate(1, 0, 0).Add(-time.Nanosecond)
 
-    default:
-        return TimeFrame{}, fmt.Errorf("invalid timeframe: %s", timeframe)
-    }
+	default:
+		return TimeFrame{}, fmt.Errorf("invalid timeframe: %s", timeframe)
+	}
 
-    return statsTimeFrame, nil
+	return statsTimeFrame, nil
 }
-
-
 
 // compute total work duration stats
 func computeTotalWorkDurationStats(timeframe TimeFrame, db *sql.DB) (time.Duration, error) {
@@ -168,7 +164,6 @@ func computeTotalWorkDurationStats(timeframe TimeFrame, db *sql.DB) (time.Durati
 		return 0, nil
 	}
 
-	fmt.Println(totalSeconds.Int64)
 
 	return time.Duration(totalSeconds.Int64) * time.Second, nil
 }
@@ -201,7 +196,6 @@ func computeAverageSessionDuration(timeframe TimeFrame, db *sql.DB) (time.Durati
 	if !avgSeconds.Valid {
 		return 0, nil
 	}
-	fmt.Println("Average Seconds: ", avgSeconds.Int64)
 	return time.Duration(avgSeconds.Int64) * time.Second, nil
 }
 
@@ -217,14 +211,16 @@ func computeLongestSession(timeframe TimeFrame, db *sql.DB) (time.Duration, erro
 	if !longestSeconds.Valid {
 		return 0, nil
 	}
-	fmt.Println("Longest Seconds: ", longestSeconds.Int64)
 	return time.Duration(longestSeconds.Int64) * time.Second, nil
 }
 
 func computeShortestSession(timeframe TimeFrame, db *sql.DB) (time.Duration, error) {
-	query := `SELECT MIN(end_time - start_time)
+	query := `SELECT MIN(end_time - start_time) as shortest
 		FROM sessions
-		WHERE start_time BETWEEN ? AND ?`
+		WHERE start_time BETWEEN ? AND ? 
+		GROUP BY label
+		ORDER BY shortest ASC
+		LIMIT 1`
 	var shortestSeconds sql.NullInt64
 	err := db.QueryRow(query, timeframe.start.Unix(), timeframe.end.Unix()).Scan(&shortestSeconds)
 	if err != nil {
@@ -233,26 +229,34 @@ func computeShortestSession(timeframe TimeFrame, db *sql.DB) (time.Duration, err
 	if !shortestSeconds.Valid {
 		return 0, nil
 	}
-	fmt.Println("Shortest Seconds: ", shortestSeconds.Int64)
 	return time.Duration(shortestSeconds.Int64) * time.Second, nil
 }
 
 func computeHighestSessionLabel(timeframe TimeFrame, db *sql.DB) (map[string]time.Duration, error) {
-	query := `SELECT label, MAX(end_time - start_time)
+	query := `SELECT label, MAX(end_time - start_time) as longest
 		FROM sessions
-		WHERE start_time BETWEEN ? AND ?`
+		WHERE start_time BETWEEN ? AND ?
+		GROUP BY label
+		ORDER BY longest DESC
+		LIMIT 1`
 	highestSessionLabel := make(map[string]time.Duration)
-	err := db.QueryRow(query, timeframe.start.Unix(), timeframe.end.Unix()).Scan(&highestSessionLabel)
+	var label string
+	var longestSeconds sql.NullInt64
+	err := db.QueryRow(query, timeframe.start.Unix(), timeframe.end.Unix()).Scan(&label, &longestSeconds)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Highest Session Label: ", highestSessionLabel)
+	if !longestSeconds.Valid {
+		return nil, nil
+	}
+	highestSessionLabel[label] = time.Duration(longestSeconds.Int64) * time.Second
 	return highestSessionLabel, nil
 }
 func computeTimeSpentPerLabel(timeframe TimeFrame, db *sql.DB) (map[string]time.Duration, error) {
 	query := `SELECT label, SUM(end_time - start_time)
 		FROM sessions
-		WHERE start_time BETWEEN ? AND ?`
+		WHERE start_time BETWEEN ? AND ?
+		GROUP BY label`
 	timeSpentPerLabel := make(map[string]time.Duration)
 	rows, err := db.Query(query, timeframe.start.Unix(), timeframe.end.Unix())
 	if err != nil {
@@ -261,13 +265,15 @@ func computeTimeSpentPerLabel(timeframe TimeFrame, db *sql.DB) (map[string]time.
 	defer rows.Close()
 	for rows.Next() {
 		var label string
-		var duration time.Duration
+		var duration sql.NullInt64
 		if err := rows.Scan(&label, &duration); err != nil {
 			return nil, err
 		}
-		timeSpentPerLabel[label] = duration
+		if !duration.Valid {
+			continue
+		}
+		timeSpentPerLabel[label] = time.Duration(duration.Int64) * time.Second
 	}
-	fmt.Println("Time Spent Per Label: ", timeSpentPerLabel)
 	return timeSpentPerLabel, nil
 }
 
@@ -290,10 +296,8 @@ func computePomosPerLabel(timeframe TimeFrame, db *sql.DB) (map[string]int, erro
 		}
 		pomosPerLabel[label] = count
 	}
-	fmt.Println("Pomos Per Label: ", pomosPerLabel)
 	return pomosPerLabel, nil
 }
-
 
 // INITIAL SETUP
 
