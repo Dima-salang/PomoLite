@@ -188,7 +188,7 @@ func computeAverageSessionDuration(timeframe TimeFrame, db *sql.DB) (time.Durati
 		FROM sessions
 		WHERE start_time BETWEEN ? AND ?
 	`
-	var avgSeconds sql.NullInt64
+	var avgSeconds sql.NullFloat64
 	err := db.QueryRow(query, timeframe.start.Unix(), timeframe.end.Unix()).Scan(&avgSeconds)
 	if err != nil {
 		return 0, err
@@ -196,7 +196,7 @@ func computeAverageSessionDuration(timeframe TimeFrame, db *sql.DB) (time.Durati
 	if !avgSeconds.Valid {
 		return 0, nil
 	}
-	return time.Duration(avgSeconds.Int64) * time.Second, nil
+	return time.Duration(avgSeconds.Float64) * time.Second, nil
 }
 
 func computeLongestSession(timeframe TimeFrame, db *sql.DB) (time.Duration, error) {
