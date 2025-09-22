@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Dima-salang/PomoLite/timer"
+	"github.com/Dima-salang/pomolite/timer"
 )
 
 var testStorage *timer.SQLiteStorage
@@ -26,14 +26,13 @@ func TestMain(m *testing.M) {
 	}
 	testStorage = storage
 	defer storage.Close()
-	
+
 	code := m.Run()
 
 	storage.Close()
 
 	os.Exit(code)
 }
-
 
 func TestSaveTimerData(t *testing.T) {
 	storage := testStorage

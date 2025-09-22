@@ -35,7 +35,7 @@
 You can install PomoLite using `go install`. This will build the binary and place it in your `$GOPATH/bin` directory.
 
 ```sh
-go install github.com/Dima-salang/PomoLite/cmd/pomo@latest
+go install github.com/Dima-salang/pomolite/cmd/pomo@latest
 ```
 The executable will be named `pomo`.
 
@@ -44,9 +44,9 @@ The executable will be named `pomo`.
 Alternatively, you can clone the repository and build the application from source.
 
 ```sh
-git clone https://github.com/Dima-salang/PomoLite.git
-cd PomoLite
-go build -o PomoLite cmd/pomo/main.go
+git clone https://github.com/Dima-salang/pomolite.git
+cd pomolite
+go build -o pomolite cmd/pomo/main.go
 ```
 
 ---
@@ -60,7 +60,7 @@ PomoLite provides three main commands: `start`, `sessions`, and `stat`.
 Starts a new Pomodoro timer.
 
 ```sh
-PomoLite start [flags]
+pomo start [flags]
 ```
 
 **Flags:**
@@ -71,7 +71,7 @@ PomoLite start [flags]
 **Example:**
 ```sh
 # Start a 25-minute timer with a 5-minute break and the label "Coding"
-./PomoLite start -m 25 -b 5 -l "Coding"
+pomo start -m 25 -b 5 -l "Coding"
 ```
 
 **Interactive Controls:**
@@ -85,7 +85,7 @@ While the timer is running, you can use the following keys:
 Lists your past Pomodoro sessions.
 
 ```sh
-PomoLite sessions [flags]
+pomo sessions [flags]
 ```
 
 **Flags:**
@@ -94,7 +94,7 @@ PomoLite sessions [flags]
 **Example:**
 ```sh
 # List the last 10 sessions
-./PomoLite sessions -l 10
+pomo sessions -l 10
 ```
 
 ### `stat`
@@ -102,7 +102,7 @@ PomoLite sessions [flags]
 Displays statistics about your Pomodoro sessions.
 
 ```sh
-PomoLite stat [flags]
+pomo stat [flags]
 ```
 
 **Flags:**
@@ -111,7 +111,7 @@ PomoLite stat [flags]
 **Example:**
 ```sh
 # Show statistics for the current week
-./PomoLite stat -t week
+pomo stat -t week
 ```
 
 ---
